@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>锐刀智检</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#1E40AF',
+            dark: '#0F172A',
+            light: '#F8FAFC',
+            folder: '#FBBF24',
+            folderOpen: '#F59E0B'
+          },
+          fontFamily: {
+            inter: ['Inter', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .carousel-container {
+        @apply relative overflow-hidden rounded-lg;
+      }
+      .carousel-slide {
+        @apply absolute top-0 left-0 w-full h-full opacity-0 transition-opacity duration-1000;
+      }
+      .carousel-slide.active {
+        @apply opacity-100;
+      }
+      .carousel-indicator {
+        @apply w-2 h-2 rounded-full bg-gray-400 cursor-pointer transition-all duration-300;
+      }
+      .carousel-indicator.active {
+        @apply w-6 bg-folder;
+      }
+      .image-viewer {
+        @apply fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300;
+      }
+      .image-viewer.active {
+        @apply opacity-100 pointer-events-auto;
+      }
+      .viewer-content {
+        @apply relative max-w-6xl w-full max-h-[90vh] flex items-center justify-center;
+      }
+      .viewer-img {
+        @apply max-w-full max-h-[90vh] object-contain rounded-lg transform transition-transform duration-300 cursor-zoom-in;
+      }
+      .viewer-img.zoomed {
+        @apply cursor-zoom-out;
+      }
+      .viewer-close {
+        @apply absolute top-4 right-4 text-white text-3xl hover:text-red-500 transition-colors z-10 cursor-pointer;
+      }
+      .bg-slider {
+        @apply fixed inset-0 z-[-1];
+      }
+      .bg-slide {
+        @apply absolute inset-0 bg-cover bg-center opacity-0 transition-opacity duration-1000;
+      }
+      .bg-slide.active {
+        @apply opacity-100;
+      }
+      .bg-control {
+        @apply fixed bottom-8 z-10 flex items-center justify-between w-full px-6;
+      }
+      .bg-btn {
+        @apply w-12 h-12 rounded-full bg-black/30 backdrop-blur-sm text-white flex items-center justify-center hover:bg-black/50 transition-colors;
+      }
+    }
+  </style>
+</head>
+<body class="font-inter text-light min-h-screen flex flex-col">
+  <!-- 背景轮播 -->
+  <div class="bg-slider">
+    <div class="bg-slide active" style="background-image: url('media/background/A1.jpg');"></div>
+    <div class="bg-slide" style="background-image: url('media/background/A2.jpg');"></div>
+    <div class="bg-slide" style="background-image: url('media/background/A3.jpg');"></div>
+    <div class="bg-slide" style="background-image: url('media/background/A4.jpg');"></div>
+    <div class="bg-slide" style="background-image: url('media/background/A5.jpg');"></div>
+    <div class="bg-slide" style="background-image: url('media/background/A6.jpg');"></div>
+    <div class="bg-slide" style="background-image: url('media/background/A7.jpg');"></div>
+    <div class="bg-slide" style="background-image: url('media/background/A8.jpg');"></div>
+    <div class="bg-slide" style="background-image: url('media/background/A9.jpg');"></div>
+    <div class="bg-slide" style="background-image: url('media/background/A10.jpg');"></div>
+  </div>
+  
+  <!-- 背景控制按钮 -->
+  <div class="bg-control">
+    <button class="bg-btn" id="prev-bg"><i class="fa fa-chevron-left"></i></button>
+    <button class="bg-btn" id="next-bg"><i class="fa fa-chevron-right"></i></button>
+  </div>
+  
+  <header class="fixed top-0 left-0 right-0 z-50 bg-dark/60 backdrop-blur-md p-4">
+    <div class="container mx-auto flex items-center justify-between">
+      <h1 class="text-xl font-bold">锐刀智检</h1>
+      <nav>
+        <a href="#" class="text-white hover:text-folder mx-2">首页</a>
+        <a href="#" class="text-white hover:text-folder mx-2">所有文件</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-4 mt-20">
+    <!-- 左侧文件夹列表 -->
+    <div class="lg:col-span-1 bg-gray-800/60 backdrop-blur-sm p-4 rounded">
+      <h2 class="text-lg font-semibold mb-4">项目主列表</h2>
+      <div class="space-y-2">
+        <div class="folder-item cursor-pointer hover:bg-gray-700/50 p-2 rounded" data-type="video">
+          <i class="fa fa-film text-red-500 mr-2"></i> 项目主视频
+        </div>
+        <div class="folder-item cursor-pointer hover:bg-gray-700/50 p-2 rounded" data-type="image">
+          <i class="fa fa-users text-blue-500 mr-2"></i> 团队合照
+        </div>
+        <div class="folder-item cursor-pointer hover:bg-gray-700/50 p-2 rounded" data-type="case1">
+          <i class="fa fa-building text-green-500 mr-2"></i> 应用案例1—成都领辉机械有限公司
+        </div>
+        <div class="folder-item cursor-pointer hover:bg-gray-700/50 p-2 rounded" data-type="case2">
+          <i class="fa fa-building text-green-500 mr-2"></i> 应用案例2—四川新屿精密制造有限公司
+        </div>
+        <div class="folder-item cursor-pointer hover:bg-gray-700/50 p-2 rounded" data-type="case3">
+          <i class="fa fa-building text-green-500 mr-2"></i> 应用案例3—成都航沐云天科技有限公司
+        </div>
+      </div>
+    </div>
+    
+    <!-- 右侧内容区 -->
+    <div class="lg:col-span-2 bg-gray-800/60 backdrop-blur-sm p-4 rounded" id="content-area">
+      点击左侧文件夹查看内容
+    </div>
+  </main>
+
+  <!-- 图片查看器 -->
+  <div id="image-viewer" class="image-viewer">
+    <div class="viewer-content">
+      <span class="viewer-close" onclick="closeViewer()"><i class="fa fa-times"></i></span>
+      <img id="viewer-img" class="viewer-img" alt="查看图片" ondblclick="toggleZoom()">
+    </div>
+  </div>
+
+  <script>
+    // 背景轮播控制
+    const bgSlides = document.querySelectorAll('.bg-slide');
+    const prevBgBtn = document.getElementById('prev-bg');
+    const nextBgBtn = document.getElementById('next-bg');
+    let currentBgSlide = 0;
+    let bgInterval;
+
+    function showBgSlide(index) {
+      bgSlides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+    }
+
+    function nextBgSlide() {
+      currentBgSlide = (currentBgSlide + 1) % bgSlides.length;
+      showBgSlide(currentBgSlide);
+      resetBgInterval();
+    }
+
+    function prevBgSlide() {
+      currentBgSlide = (currentBgSlide - 1 + bgSlides.length) % bgSlides.length;
+      showBgSlide(currentBgSlide);
+      resetBgInterval();
+    }
+
+    function resetBgInterval() {
+      clearInterval(bgInterval);
+      bgInterval = setInterval(nextBgSlide, 3000); // 3秒间隔
+    }
+
+    // 初始化背景轮播
+    resetBgInterval();
+    
+    // 背景控制按钮事件
+    prevBgBtn.addEventListener('click', prevBgSlide);
+    nextBgBtn.addEventListener('click', nextBgSlide);
+    
+    // 文件夹交互
+    document.querySelectorAll('.folder-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const type = item.dataset.type;
+        let content = '';
+        
+        if (type === 'video') {
+          content = `
+            <div class="mb-4">
+              <video controls class="w-full" src="media/videos/主视频.mp4">
+                不支持视频播放
+              </video>
+            </div>
+            <h3>项目视频</h3>
+          `;
+        } else if (type === 'image') {
+          content = createImageGrid(1, 3);
+        } else if (type.startsWith('case')) {
+          const caseNumber = type.replace('case', '');
+          content = createCarouselContent(caseNumber);
+        }
+        
+        document.getElementById('content-area').innerHTML = content;
+        
+        // 如果是案例文件夹，初始化轮播
+        if (type.startsWith('case')) {
+          initCarousel(type);
+        }
+      });
+    });
+    
+    // 创建图片网格
+    function createImageGrid(start, end) {
+      let html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">';
+      
+      for (let i = start; i <= end; i++) {
+        html += `
+          <div class="bg-gray-700/50 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors duration-200 cursor-pointer media-item-shadow group">
+            <div class="relative aspect-square">
+              <img src="media/images/${i}.jpg" alt="图片${i}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onclick="openViewer('media/images/${i}.jpg')">
+              <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <i class="fa fa-search-plus text-white text-xl"></i>
+                </div>
+              </div>
+            </div>
+            <div class="p-3">
+              <h4 class="font-medium">图片${i}</h4>
+            </div>
+          </div>
+        `;
+      }
+      
+      return html + '</div>';
+    }
+    
+    // 创建轮播内容
+    function createCarouselContent(caseNumber) {
+      let slidesHtml = '';
+      let indicatorsHtml = '';
+      
+      for (let i = 1; i <= 7; i++) {
+        const active = i === 1 ? 'active' : '';
+        const imgNumber = caseNumber + i;
+        slidesHtml += `
+          <div class="carousel-slide ${active}">
+            <img src="media/images/${imgNumber}.jpg" alt="案例图片${imgNumber}" class="w-full h-auto rounded cursor-pointer" onclick="openViewer('media/images/${imgNumber}.jpg')">
+          </div>
+        `;
+        indicatorsHtml += `<div class="carousel-indicator ${active}" data-index="${i-1}"></div>`;
+      }
+      
+      return `
+        <div class="carousel-container aspect-video">
+          ${slidesHtml}
+          <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+            ${indicatorsHtml}
+          </div>
+          <button class="absolute top-1/2 left-4 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors" onclick="prevSlide('case${caseNumber}')">
+            <i class="fa fa-chevron-left"></i>
+          </button>
+          <button class="absolute top-1/2 right-4 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors" onclick="nextSlide('case${caseNumber}')">
+            <i class="fa fa-chevron-right"></i>
+          </button>
+        </div>
+        <h3 class="mt-4">应用案例${caseNumber}</h3>
+      `;
+    }
+    
+    // 初始化轮播
+    function initCarousel(type) {
+      const slides = document.querySelectorAll(`.carousel-slide`);
+      const indicators = document.querySelectorAll(`.carousel-indicator`);
+      let currentSlide = 0;
+      let slideInterval;
+      
+      function showSlide(index) {
+        slides.forEach((slide, i) => slide.classList.toggle('active', i === index));
+        indicators.forEach((indicator, i) => indicator.classList.toggle('active', i === index));
+      }
+      
+      function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+      }
+      
+      function prevSlide() {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(currentSlide);
+      }
+      
+      function resetInterval() {
+        clearInterval(slideInterval);
+        slideInterval = setInterval(nextSlide, 3000);
+      }
+      
+      // 点击指示器切换幻灯片
+      indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+          currentSlide = index;
+          showSlide(currentSlide);
+          resetInterval();
+        });
+      });
+      
+      // 启动自动轮播
+      resetInterval();
+      
+      // 保存轮播状态到全局变量
+      window.carousels = window.carousels || {};
+      window.carousels[type] = {
+        currentSlide,
+        slides,
+        indicators,
+        slideInterval,
+        showSlide,
+        nextSlide,
+        prevSlide,
+        resetInterval
+      };
+    }
+    
+    // 轮播控制函数
+    function nextSlide(type) {
+      if (window.carousels && window.carousels[type]) {
+        window.carousels[type].nextSlide();
+        window.carousels[type].resetInterval();
+      }
+    }
+    
+    function prevSlide(type) {
+      if (window.carousels && window.carousels[type]) {
+        window.carousels[type].prevSlide();
+        window.carousels[type].resetInterval();
+      }
+    }
+    
+    // 图片查看器功能
+    function openViewer(src) {
+      const viewer = document.getElementById('image-viewer');
+      const img = document.getElementById('viewer-img');
+      
+      img.src = src;
+      img.classList.remove('zoomed');
+      img.style.transform = 'scale(1)';
+      
+      viewer.classList.add('active');
+      document.body.style.overflow = 'hidden'; // 防止背景滚动
+    }
+    
+    function closeViewer() {
+      const viewer = document.getElementById('image-viewer');
+      document.getElementById('viewer-img').classList.remove('zoomed');
+      
+      viewer.classList.remove('active');
+      document.body.style.overflow = ''; // 恢复背景滚动
+    }
+    
+    function toggleZoom() {
+      const img = document.getElementById('viewer-img');
+      
+      if (img.classList.contains('zoomed')) {
+        img.classList.remove('zoomed');
+        img.style.transform = 'scale(1)';
+      } else {
+        img.classList.add('zoomed');
+        img.style.transform = 'scale(1.5)'; // 放大1.5倍
+      }
+    }
+    
+    // 点击背景关闭
+    document.getElementById('image-viewer').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('image-viewer')) {
+        closeViewer();
+      }
+    });
+    
+    // ESC键关闭
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeViewer();
+      }
+    });
+  </script>
+</body>
+</html>
